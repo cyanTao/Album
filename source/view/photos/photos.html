@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>相册详情</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0"
+    />
+    <style>
+      img {
+        width: 100%;
+      }
+      .btn img {
+        width: 100%;
+      }
+    </style>
+  </head>
+
+  <body></body>
+</html>
+<script>
+  var search = decodeURIComponent(location.search)
+  var name, target
+  var arr = search.split('&')
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i].indexOf('name=') !== -1) {
+      var index = arr[i].indexOf('name=')
+      name = arr[i].slice(index + 5)
+    } else if (arr[i].indexOf('target=') !== -1) {
+      var index = arr[i].indexOf('target=')
+      target = arr[i].slice(index + 7)
+    }
+  }
+  ajax('/tools/photo?name=' + name + '&target=' + target, {}, function(res) {
+    var pictures = res.pictures
+    var div = document.createElement('div')
+    for (var i = 0; i < pictures.length; i++) {
+      var img = new Image()
+      img.src = pictures[i]
+      div.appendChild(img)
+    }
+    document.getElementsByTagName('body')[0].appendChild(div)
+  })
+
+  function ajax(url, param, callback) {
+    url = url || ''
+    param = param || {}
+    var req = null
+    if (window.XMLHttpRequest) {
+      req = new XMLHttpRequest()
+    } else {
+      req = new ActiveXObject('Microsoft.XMLHTTP')
+    }
+    req.open('POST', url, true)
+    var formData = new FormData()
+    for (var key in param) {
+      formData.append(key, JSON.stringify(param[key]))
+    }
+    req.send(formData)
+    req.onreadystatechange = function() {
+      if (req.readyState == 4 && req.status == 200) {
+        var data = JSON.parse(req.responseText)
+        callback(data)
+      }
+    }
+  }
+</script>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>相册</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0"
+    />
+    <style>
+      img {
+        width: 100%;
+      }
+      .btn img {
+        width: 100%;
+      }
+      .source{
+          position: fixed;
+          top: 0;
+          right: 0;
+          background: #2F7DCD;
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          color: white;
+          font-size: 12px;
+          line-height: 50px;
+          text-align: center;
+          text-decoration: none;
+      }
+      .source img{
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+  </body>
+</html>
+<script>
+  var search = decodeURIComponent(location.search)
+  var index = search.indexOf('?name=')
+
+  var name = search.slice(index + 6)
+  ajax('/tools/detail?name=' + name, {}, function(res) {
+    var pictures = res.pictures
+    var div = document.createElement('div')
+    for (var i = 0; i < pictures.length; i++) {
+      var sourceBtn = pictures[i].type ==='url'
+      var btn = document.createElement('a')
+      btn.className = 'btn'
+      var span = document.createElement('span')
+      var img = document.createElement('img')
+      img.src = pictures[i].src
+      span.innerHTML = sourceBtn ? '原网址': pictures[i].name
+      btn.appendChild(span)
+      btn.appendChild(img)
+      btn.className = sourceBtn ? 'source' : ''
+      btn.href = sourceBtn ? pictures[i].url :('photos.html?name=' + name + '&target=' + pictures[i].name)
+      div.appendChild(btn)
+    }
+    document.getElementsByTagName('body')[0].appendChild(div)
+  })
+
+  function ajax(url, param, callback) {
+    url = url || ''
+    param = param || {}
+    var req = null
+    if (window.XMLHttpRequest) {
+      req = new XMLHttpRequest()
+    } else {
+      req = new ActiveXObject('Microsoft.XMLHTTP')
+    }
+    req.open('POST', url, true)
+    var formData = new FormData()
+    for (var key in param) {
+      formData.append(key, JSON.stringify(param[key]))
+    }
+    req.send(formData)
+    req.onreadystatechange = function() {
+      if (req.readyState == 4 && req.status == 200) {
+        var data = JSON.parse(req.responseText)
+        callback(data)
+      }
+    }
+  }
+</script>
