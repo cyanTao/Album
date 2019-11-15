@@ -8,53 +8,54 @@
       name="viewport"
       content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0"
     />
+    <link rel="stylesheet" href="./css/weui.css" />
+    <link rel="stylesheet" href="./css/base.css" />
     <style>
+      html,
+      body {
+        background: #f5f5f5;
+      }
       .btn {
         display: flex;
         align-items: center;
-        padding:0 15px;
+        padding: 0 15px;
         box-sizing: border-box;
         width: 90%;
         height: 50px;
-        background: #a9a8a5;
+        background: white;
         border-radius: 4px;
         margin: 0 auto;
         margin-top: 10px;
-        color: white;
+        color: #666;
         font-size: 18px;
         text-align: center;
         line-height: 50px;
         text-decoration: none;
       }
-      .btn img{
-        width: 40px;
-        height: 40px;
-        margin-right: 10px;
+      .btn .icon {
+        width: 48px;
+        height: 38px;
+        padding: 0;
+        margin-right: 15px;
+        background: url(./img/ext/cabinet_icon.png);
+        background-repeat: no-repeat;
+        background-position: -48px 0px;
+        background-size: 300%;
       }
     </style>
   </head>
 
-  <body></body>
+  <body>
+    <div id="content"></div>
+    <a href="javascript:;" class="weui-btn weui-btn_primary mt15">新建文件夹</a>
+    <div class="weui-footer ">
+      <p class="weui-footer__links">
+        <a href="javascript:;" class="weui-footer__link">侵权必究!</a>
+      </p>
+      <p class="weui-footer__text">Copyright © A demo for practice</p>
+    </div>
+  </body>
 </html>
 <script src="./js/jquery-1.12.4.js"></script>
+<script src="./js/common.js"></script>
 <script src="./js/index.js"></script>
-<script>
-  ;(_ =>
-    [..."`1234567890-=~~QWERTYUIOP[]\\~ASDFGHJKL;'~~ZXCVBNM,./~"].map(
-      x =>
-        ((o += `/${(b = '_'.repeat(
-          (w =
-            x < y
-              ? 2
-              : ' 667699'[
-                  ((x = ['BS', 'TAB', 'CAPS', 'ENTER'][p++] || 'SHIFT'), p)
-                ])
-        ))}\\|`),
-        (m += y + (x + ' ').slice(0, w) + y + y),
-        (n += y + b + y + y),
-        (l += ' __' + b))[73] &&
-        (k.push(l, m, n, o), (l = ''), (m = n = o = y)),
-      (m = n = o = y = '|'),
-      (p = l = k = [])
-    ) && k.join``)()
-</script>

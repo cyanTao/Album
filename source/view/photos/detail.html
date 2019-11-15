@@ -8,6 +8,8 @@
       name="viewport"
       content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0"
     />
+    <link rel="stylesheet" href="./css/weui.css" />
+    <link rel="stylesheet" href="./css/base.css" />
     <style>
       img {
         width: 100%;
@@ -15,28 +17,37 @@
       .btn img {
         width: 100%;
       }
-      .source{
-          position: fixed;
-          top: 0;
-          right: 0;
-          background: #2F7DCD;
-          width: 50px;
-          height: 50px;
-          border-radius: 50%;
-          color: white;
-          font-size: 12px;
-          line-height: 50px;
-          text-align: center;
-          text-decoration: none;
+      .source {
+        position: fixed;
+        top: 0;
+        right: 0;
+        background: #2f7dcd;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        color: white;
+        font-size: 12px;
+        line-height: 50px;
+        text-align: center;
+        text-decoration: none;
       }
-      .source img{
+      .source img {
         display: none;
       }
     </style>
   </head>
   <body>
+    <div id="content"></div>
+    <div class="weui-footer">
+      <p class="weui-footer__links">
+        <a href="javascript:;" class="weui-footer__link">侵权必究!</a>
+      </p>
+      <p class="weui-footer__text">Copyright © A demo for practice</p>
+    </div>
   </body>
 </html>
+<script src="./js/jquery-1.12.4.js"></script>
+<script src="./js/common.js"></script>
 <script>
   var search = decodeURIComponent(location.search)
   var index = search.indexOf('?name=')
@@ -46,20 +57,22 @@
     var pictures = res.pictures
     var div = document.createElement('div')
     for (var i = 0; i < pictures.length; i++) {
-      var sourceBtn = pictures[i].type ==='url'
+      var sourceBtn = pictures[i].type === 'url'
       var btn = document.createElement('a')
       btn.className = 'btn'
       var span = document.createElement('span')
       var img = document.createElement('img')
       img.src = pictures[i].src
-      span.innerHTML = sourceBtn ? '原网址': pictures[i].name
+      span.innerHTML = sourceBtn ? '原网址' : pictures[i].name
       btn.appendChild(span)
       btn.appendChild(img)
       btn.className = sourceBtn ? 'source' : ''
-      btn.href = sourceBtn ? pictures[i].url :('photos.html?name=' + name + '&target=' + pictures[i].name)
+      btn.href = sourceBtn
+        ? pictures[i].url
+        : 'photos.html?name=' + name + '&target=' + pictures[i].name
       div.appendChild(btn)
     }
-    document.getElementsByTagName('body')[0].appendChild(div)
+    $('#content').append(div)
   })
 
   function ajax(url, param, callback) {

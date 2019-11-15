@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const fs = require('fs')
 const upload = require('./upload.js')
+const path = require('path')
 
 // 相册文件夹链接
 const albumPath = './source/data/static/album'
@@ -24,44 +25,26 @@ router.post('/pictures', (req, res) => {
 // 获取文件夹相册及第一张图片
 router.post('/detail', (req, res) => {
   var name = req.query.name
-  fs.readdir(`${albumPath}/` + name, function (err, files) {
+  const folderPath = path.join(albumPath, name)
+  fs.readdir(folderPath, async (err, files) => {
     if (err) {
       console.log('error:' + err)
       return
-    };
-    (async () => {
-      const result = []
-      for (let i = 0; i < files.length; i++) {
-        let item = await getInfo(
-          `${albumPath}/` + name + '/' + files[i]
-        )
-        result.push({
-          name: files[i],
-          ctime: item.ctime,
-          type: item.type || false,
-          url: item.url || false,
-          cover: item.cover
-        })
+    }
+
+    let orderResult = await sortResult(folderPath, files)
+    const newArr = []
+    orderResult.forEach(item => {
+      let obj = {
+        name: item.name,
+        src: path.join(staticPath, name, item.name, item.cover),
+        ctime: item.ctime
       }
-      let orderResult = result.sort(function (a, b) {
-        let result = b.ctime - a.ctime
-        return result
-      })
-      const newArr = []
-      orderResult.forEach(item => {
-        let obj = {
-          name: item.name,
-          type: item.type || 'dir',
-          src: staticPath + name + '/' + item.name + '/' + item.cover,
-          url: item.url || '',
-          ctime: item.ctime
-        }
-        newArr.push(obj)
-      })
-      res.send({
-        pictures: newArr
-      })
-    })()
+      newArr.push(obj)
+    })
+    res.send({
+      pictures: newArr
+    })
   })
 })
 
@@ -69,7 +52,8 @@ router.post('/detail', (req, res) => {
 router.post('/photo', (req, res) => {
   var name = req.query.name
   var target = req.query.target
-  fs.readdir(`${albumPath}/` + name + '/' + target, function (
+  const folderPath = path.join(albumPath, name)
+  fs.readdir(path.join(folderPath, target), async function (
     err,
     files
   ) {
@@ -77,9 +61,10 @@ router.post('/photo', (req, res) => {
       console.log('error:' + err)
       return
     }
+    const orderResult = await sortResult(path.join(folderPath, target), files)
     var newArr = []
-    files.forEach(item => {
-      newArr.push(staticPath + name + '/' + target + '/' + item)
+    orderResult.forEach(item => {
+      newArr.push(path.join(staticPath, name, target, item.name))
     })
     res.send({
       pictures: newArr
@@ -88,7 +73,7 @@ router.post('/photo', (req, res) => {
 })
 
 // 上传
-router.post('/upload',upload)
+router.post('/upload', upload)
 
 
 function getInfo(name) {
@@ -97,19 +82,49 @@ function getInfo(name) {
       if (err) {
         console.log(err)
       }
-      fs.readdir(name, function (err, files) {
-        if (err) {
-          console.log('error:' + err)
-          return
-        }
-        resolve({
-          ...obj,
-          cover: files[0]
+      // 如果是文件夹再找第一张图片作为封面
+      if (obj.isDirectory()) {
+        fs.readdir(name, function (err, files) {
+          if (err) {
+            console.log('error:' + err)
+            return
+          }
+          resolve({
+            ...obj,
+            cover: files[0]
+          })
         })
-      })
-
+      } else {
+        resolve(obj)
+      }
     })
   })
+}
+
+function sortResult(folderPath, files) {
+  return new Promise(resolve => {
+    const promises = []
+    for (let i = 0; i < files.length; i++) {
+      promises.push(getInfo(
+        path.join(folderPath, files[i])
+      ).then(item => {
+        const result = {
+          name: files[i],
+          ctime: item.birthtimeMs,
+          cover: item.cover
+        }
+        return Promise.resolve(result)
+      }))
+    }
+    Promise.all(promises).then(result => {
+      result.sort(function (a, b) {
+        let result = b.ctime - a.ctime
+        return result
+      })
+      resolve(result)
+    })
+  })
+
 }
 
 module.exports = router

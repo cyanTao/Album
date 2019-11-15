@@ -1,13 +1,13 @@
 {
-  "name": "zhihuVideo",
+  "name": "folder",
   "version": "1.0.0",
-  "description": "爬取知乎视频demo",
+  "description": "我的云盘",
   "main": "app.js",
   "author": "ljx",
   "license": "MIT",
   "scripts": {
-    "serve": "node app.js",
-    "get": "node server.js"
+    "dev": "node app.js",
+    "serve": "npm run serve"
   },
   "dependencies": {
     "@vue/cli-service-global": "^3.5.5",

@@ -5,18 +5,78 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>上传文件</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="./css/weui.css" />
+    <link rel="stylesheet" href="./css/base.css" />
+    <style>
+      .page__bd.page__bd_spacing {
+        padding: 0 15px;
+        box-sizing: border-box;
+      }
+
+      #container {
+        padding: 15px;
+        box-sizing: border-box;
+      }
+      #container .img,
+      #container .video {
+        max-width: 100%;
+      }
+    </style>
   </head>
 
   <body>
-    <input type="file" id="uploaderInput" multiple="multiple" />
-    <div id="video"></div>
-    进度:
-    <div id="process">0</div>
+    <div class="weui-cell">
+      <div class="weui-cell__bd">
+        <div class="weui-uploader">
+          <div class="weui-uploader__hd">
+            <p class="weui-uploader__title">文件上传</p>
+          </div>
+          <div class="weui-uploader__bd">
+            <div class="weui-uploader__input-box">
+              <input
+                id="uploaderInput"
+                class="weui-uploader__input"
+                type="file"
+                accept=""
+                multiple="multiple"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="container"></div>
+    <br />
+    <div class="page__bd page__bd_spacing">
+      <div class="weui-progress">
+        <div class="weui-progress__bar">
+          <div
+            class="weui-progress__inner-bar js_progress"
+            style="width: 0%;"
+          ></div>
+        </div>
+      </div>
+      <br />
+    </div>
   </body>
 </html>
 <script src="./js/jquery-1.12.4.js"></script>
+<script src="./js/common.js"></script>
 <script src="./js/md5.js"></script>
 <script>
+  var search = decodeURIComponent(location.search)
+  var folderName, albumName
+  var arr = search.split('&')
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i].indexOf('name=') !== -1) {
+      var index = arr[i].indexOf('name=')
+      folderName = arr[i].slice(index + 5)
+    } else if (arr[i].indexOf('target=') !== -1) {
+      var index = arr[i].indexOf('target=')
+      albumName = arr[i].slice(index + 7)
+    }
+  }
+
   // 上传视频开始
   $('#uploaderInput').on('change', function() {
     $('.loading').css('display', 'block')
@@ -43,6 +103,7 @@
     if (!file) {
       return
     }
+    $('.js_progress').css('width', '0')
     let index = file.name.lastIndexOf('.')
     window.hash = await getHash(file)
     window.file = file
@@ -57,19 +118,24 @@
     return new Promise((resolve, reject) => {
       upload(
         function(data) {
-          console.log(data)
-          $('#process').html('100%')
-          $('#video').append(
-            '<video controls="controls" style="width:200px;" src="' +
-              data.videoUrl +
-              '"></video>'
-          )
+          let ext = file.name.slice(file.name.lastIndexOf('.') + 1)
+          const type = common.getIconByExt(ext)
+          $('.js_progress').css('width', '100%')
+          let html = ''
+          if (type === 'mp4') {
+            html = `<video class="video" controls="controls" src="${data.videoUrl}"></video>`
+          } else if (type === 'img') {
+            html = `<img class="img" src="${data.videoUrl}" />`
+          } else {
+            html = `<img class="icon" src="./img/ext/icon_file_type_${type}.png"></img>`
+          }
+          $('#container').append(html)
           resolve()
         },
         function(err) {
           console.log(err)
           reject()
-          $('#process').html('0%')
+          $('.js_progress').css('width', '0')
         }
       )
     })
@@ -92,11 +158,12 @@
     formData.append('index', i)
     formData.append('data', file.slice(start, end))
     formData.append('hash', hash)
+    formData.append('folderName', folderName)
+    formData.append('albumName', albumName)
 
     var xhr = new XMLHttpRequest()
     xhr.open('post', '/tools/upload')
     xhr.send(formData)
-    $('.js_progress').css('width', '0')
     xhr.onload = function() {
       success++
     }
@@ -107,7 +174,7 @@
           if (i == total - 1) {
             callback(data)
           } else {
-            $('#process').html(data.process)
+            $('.js_progress').css('width', data.process)
             window.index++
             upload(callback, errCallback)
           }

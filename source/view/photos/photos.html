@@ -8,18 +8,52 @@
       name="viewport"
       content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0"
     />
+    <link rel="stylesheet" href="./css/weui.css" />
+    <link rel="stylesheet" href="./css/base.css" />
     <style>
-      img {
+      img.img,
+      video {
         width: 100%;
       }
-      .btn img {
-        width: 100%;
+      .item{
+        margin-bottom: 5px;
+      }
+      #content{
+        display: flex;
+        flex-direction: column;
+      }
+      #upload {
+        position: fixed;
+        right: 15px;
+        top: 15px;
+        font-size: 13px;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: white;
+        background: #4395ff;
+        box-shadow: 0px 0px 25px #666;
       }
     </style>
   </head>
 
-  <body></body>
+  <body>
+    <div id="content"></div>
+    <div id="upload">上传</div>
+    <div class="weui-footer ">
+      <p class="weui-footer__links">
+        <a href="javascript:;" class="weui-footer__link">侵权必究!</a>
+      </p>
+      <p class="weui-footer__text">Copyright © A demo for practice</p>
+    </div>
+  </body>
 </html>
+<script src="./js/jquery-1.12.4.js"></script>
+<script src="./js/common.js"></script>
 <script>
   var search = decodeURIComponent(location.search)
   var name, target
@@ -33,15 +67,26 @@
       target = arr[i].slice(index + 7)
     }
   }
+  $('#upload').on('click', function() {
+    window.location.href = `./upload.html?name=${name}&target=${target}`
+  })
   ajax('/tools/photo?name=' + name + '&target=' + target, {}, function(res) {
     var pictures = res.pictures
-    var div = document.createElement('div')
     for (var i = 0; i < pictures.length; i++) {
-      var img = new Image()
-      img.src = pictures[i]
-      div.appendChild(img)
+      var div = $('<div class="item"></div>')
+      const path = pictures[i]
+      const ext = common.getIconByExt(path.slice(path.lastIndexOf('.') + 1))
+      let html = ''
+      if (ext === 'img') {
+        html = `<img class="img" src="${path}"/>`
+      } else if (ext === 'mp4') {
+        html = `<video controls="controls" src="${path}"><video/>`
+      } else {
+        html = `<a href="${path}"><img class="icon" src="./img/ext/icon_file_type_${ext}.png"></img></a>`
+      }
+      div.append(html)
+      $('#content').append(div)
     }
-    document.getElementsByTagName('body')[0].appendChild(div)
   })
 
   function ajax(url, param, callback) {

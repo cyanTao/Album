@@ -1,13 +1,8 @@
 const crypto = require('crypto')
-
 const mineType = require('mime-types');
-
-const express = require('express')
-const bodyParser = require('body-parser')
 const formidable = require('formidable')
 const fs = require('fs')
 const path = require('path')
-const app = express()
 
 const md5 = function (str) {
   let md5 = crypto.createHash('md5')
@@ -18,17 +13,7 @@ const md5 = function (str) {
 //上传存储临时文件夹路径
 const temporary = './source/data/temporary'
 //上传完成后存放文件路径
-const resultPath = './source/data/static/album/文件夹1/相册99'
-
-// 新建个路由实例
-const router = express.Router()
-// 解析body
-app.use(bodyParser.json())
-app.use(
-  bodyParser.urlencoded({
-    extended: false
-  })
-)
+const resultPath = './source/data/static/album/'
 
 //存放不同人上传的数据
 const all = {}
@@ -44,8 +29,11 @@ const upload = (req, res) => {
       filename: name,
       index: fileIndex,
       total,
-      hash: fileHash
+      hash: fileHash,
+      folderName,
+      albumName
     } = fields
+    const storePath = path.join(resultPath, folderName, albumName)
     const ext = name.slice(name.lastIndexOf('.'))
     const filename = md5(name) + ext
     const fileData = files.data
@@ -119,14 +107,14 @@ const upload = (req, res) => {
             return
           }
 
-          const newPath = path.join(resultPath, filename)
+          const newPath = path.join(storePath, filename)
           fs.copyFile(temporaryPath, newPath, (err) => {
             if (err) throw err;
             fs.unlinkSync(temporaryPath)
             res.send({
               success: true,
               msg: '上传成功',
-              videoUrl: '/file/result/' + filename,
+              videoUrl: newPath.replace('source',''),
               hash
             })
             // 删掉json临时记录的文件

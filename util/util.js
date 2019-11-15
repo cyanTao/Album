@@ -33,11 +33,10 @@ class Ut {
    */
   static getPage(pageUrl) {
     return new Promise((resolve, reject) => {
-      request(
-        {
+      request({
           url: pageUrl
         },
-        function(err, response, body) {
+        function (err, response, body) {
           if (!err && response.statusCode == 200) {
             var $ = cheerio.load(body)
             resolve($)
@@ -55,10 +54,16 @@ class Ut {
    */
   static newDir(obj) {
     return new Promise(resolve => {
-      const { name, path, index } = obj
+      const {
+        name,
+        path,
+        index
+      } = obj
       fs.access(name, fs.constants.F_OK, err => {
         if (err) {
-          fs.mkdir(path, { recursive: true }, err => {
+          fs.mkdir(path, {
+            recursive: true
+          }, err => {
             if (err) throw err
             resolve(index)
           })
@@ -88,8 +93,11 @@ class Ut {
   //网络图片保存到本地
   static newImg(obj, dir_path) {
     return new Promise(resolve => {
-      const { name, path } = obj
-      if(!path){
+      const {
+        name,
+        path
+      } = obj
+      if (!path) {
         console.log(name + ': --- 下载图片失败 ===> 没有获取到图片src')
         resolve()
         return
@@ -97,8 +105,7 @@ class Ut {
       const fils_path = dir_path + '/' + name
       fs.access(fils_path, fs.constants.F_OK, err => {
         if (err) {
-          this.downImg(
-            {
+          this.downImg({
               url: path,
               headers: {
                 Referer: 'https://zhihu.com'
@@ -115,15 +122,39 @@ class Ut {
     })
   }
 
+  //获取文件/文件夹信息
+  static getInfo(name) {
+    return new Promise(resolve => {
+      fs.stat(name, (err, obj) => {
+        if (err) {
+          console.log(err)
+        }
+        resolve(obj)
+      })
+    })
+  }
+
   static success(res, obj = {}) {
-    let { code = 0, data = [], msg = '成功' } = obj
-    res.send({ code, data, msg })
+    let {
+      code = 0, data = [], msg = '成功'
+    } = obj
+    res.send({
+      code,
+      data,
+      msg
+    })
     return
   }
 
   static fail(res, obj = {}) {
-    let { code = 999, data = [], msg = '失败' } = obj
-    res.send({ code, data, msg })
+    let {
+      code = 999, data = [], msg = '失败'
+    } = obj
+    res.send({
+      code,
+      data,
+      msg
+    })
     return
   }
   static sleep(time) {
