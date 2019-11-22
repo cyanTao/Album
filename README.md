@@ -3,7 +3,9 @@
 # 开始
 
 安装依赖
+
 npm install
 
 开始
+
 npm run serve
